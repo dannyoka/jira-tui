@@ -1,0 +1,45 @@
+DEBUG:asyncio:Using selector: KqueueSelector
+DEBUG:asyncio:Using selector: KqueueSelector
+DEBUG:asyncio:Using selector: KqueueSelector
+DEBUG:asyncio:Using selector: KqueueSelector
+DEBUG:__main__:hitting j
+DEBUG:__main__:hitting k
+DEBUG:__main__:hitting l
+DEBUG:asyncio:Using selector: KqueueSelector
+DEBUG:__main__:hitting l
+DEBUG:__main__:hitting j
+DEBUG:__main__:hitting l
+DEBUG:__main__:hitting k
+DEBUG:__main__:hitting l
+DEBUG:__main__:hitting j
+DEBUG:__main__:hitting j
+DEBUG:__main__:hitting l
+DEBUG:__main__:hitting q
+DEBUG:asyncio:Using selector: KqueueSelector
+DEBUG:asyncio:Using selector: KqueueSelector
+DEBUG:asyncio:Using selector: KqueueSelector
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:asyncio:Using selector: KqueueSelector
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
+DEBUG:__main__:updating
