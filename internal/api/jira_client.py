@@ -12,6 +12,8 @@ class JiraClient:
         self.username = username or os.environ["JIRA_USERNAME"]
         self.api_token = api_token or os.environ["JIRA_API_TOKEN"]
         self.base_url = "https://qlik-dev.atlassian.net/rest/api/3"
+        self._comments_cache = {}
+        self._transitions_cache = {}
 
     def get_auth_header(self):
         token = f"{self.username}:{self.api_token}"
@@ -60,6 +62,8 @@ class JiraClient:
             }
 
     async def fetch_issue_transitions(self, issue_key: str):
+        if issue_key in self._transitions_cache:
+            return self._transitions_cache[issue_key]
         url = f"https://qlik-dev.atlassian.net/rest/api/3/issue/{issue_key}/transitions"
         headers = {
             "Authorization": self.get_auth_header(),
@@ -70,10 +74,12 @@ class JiraClient:
             resp.raise_for_status()
             data = resp.json()
             transitions = data.get("transitions", [])
-            return [
+            response = [
                 {"name": transition["name"], "id": transition["id"]}
                 for transition in transitions
             ]
+            self._transitions_cache[issue_key] = response
+            return response
 
     async def transition_issue(self, issue_key: str, transition_id: str):
         url = f"{self.base_url}/issue/{issue_key}/transitions"
@@ -86,9 +92,13 @@ class JiraClient:
         async with httpx.AsyncClient() as client:
             resp = await client.post(url, headers=headers, json=payload)
             resp.raise_for_status()
-            return resp.json()
+            if resp.status_code == 204:
+                return True  # Success, no content
+            return resp.json()  # For other status codes with content
 
     async def fetch_issue_comments(self, issue_key: str):
+        if issue_key in self._comments_cache:
+            return self._comments_cache[issue_key]
         url = f"{self.base_url}/issue/{issue_key}/comment"
         headers = {
             "Authorization": self.get_auth_header(),
@@ -98,6 +108,8 @@ class JiraClient:
             resp = await client.get(url, headers=headers)
             resp.raise_for_status()
             data = resp.json()
+            response = data.get("comments", [])
+            self._comments_cache[issue_key] = response
             return data.get("comments", [])
 
     async def add_issue_comment(self, issue_key: str, comment: str):
@@ -107,7 +119,24 @@ class JiraClient:
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
-        payload = {"body": comment}
+
+        payload = {
+            "body": {
+                "content": [
+                    {
+                        "content": [{"text": f"{comment}", "type": "text"}],
+                        "type": "paragraph",
+                    }
+                ],
+                "type": "doc",
+                "version": 1,
+            },
+            # "visibility": {
+            #     "identifier": "Administrators",
+            #     "type": "role",
+            #     "value": "Administrators",
+            # },
+        }
         async with httpx.AsyncClient() as client:
             resp = await client.post(url, headers=headers, json=payload)
             resp.raise_for_status()

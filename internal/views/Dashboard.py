@@ -32,12 +32,11 @@ class Dashboard(Screen):
         elif event.key == "k":
             self.selected = max(self.selected - 1, 0)
             self.refresh()
-        elif event.key == "l":
+        elif event.key == "space":
             self.app.push_screen(IssueView(self.issues[self.selected]))
         elif event.key == "q":
             self.app.exit()
 
     async def watch_selected(self, old, new):
-        logger.debug("updating")
         await self.recompose()
         self.refresh()

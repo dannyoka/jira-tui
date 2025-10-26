@@ -1,3 +1,4 @@
+from internal.components.CommentInput import CommentInput
 from internal.views.TransitionScreen import TransitionScreen
 from textual.screen import Screen
 from textual.app import ComposeResult
@@ -24,7 +25,7 @@ class IssueView(Screen):
 
     def compose(self) -> ComposeResult:
         yield Static(
-            f"Issue: {self.issue['key']}\nSummary: {self.issue['summary']}\n\nPress h to go back.",
+            f"Issue: {self.issue['key']}\nSummary: {self.issue['summary']}\n\nPress q to go back.",
             id="issue-detail",
         )
         for idx, comment in enumerate(self.comments):
@@ -32,8 +33,7 @@ class IssueView(Screen):
                 f"{comment['body']['content'][0]['content'][0]['text']}\nAuthor: {comment['author']['displayName']}",
                 id=f"comment-{idx}",
             )
-        for transitionIdx, transition in enumerate(self.transitions):
-            yield Static(f"{transition}", id=f"transition-{transitionIdx}")
+        # yield CommentInput(self.issue["key"], self.app.jira_client)
 
     def on_key(self, event):
         if event.key == "q":
@@ -44,3 +44,6 @@ class IssueView(Screen):
                     self.transitions, self.issue["key"], self.app.jira_client
                 )
             )
+        if event.key == "c":
+            if not self.query(CommentInput):
+                self.mount(CommentInput(self.issue["key"], self.app.jira_client))

@@ -7,4 +7,5 @@ requires-python = ">=3.11"
 dependencies = [
     "httpx>=0.28.1",
     "textual>=6.4.0",
+    "textual-dev>=1.8.0",
 ]

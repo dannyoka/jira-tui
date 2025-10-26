@@ -35,7 +35,7 @@ class TransitionSelector(Widget):
         elif event.key == "k":
             self.selected = max(self.selected - 1, 0)
             self.refresh()
-        elif event.key == " ":
+        elif event.key == "x":
             logger.info("Pushed the space key")
             transition_id = self.transitions[self.selected]["id"]
             try:
