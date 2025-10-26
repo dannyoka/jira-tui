@@ -69,4 +69,46 @@ class JiraClient:
             resp = await client.get(url, headers=headers)
             resp.raise_for_status()
             data = resp.json()
-            return data.get("transitions", [])
+            transitions = data.get("transitions", [])
+            return [
+                {"name": transition["name"], "id": transition["id"]}
+                for transition in transitions
+            ]
+
+    async def transition_issue(self, issue_key: str, transition_id: str):
+        url = f"{self.base_url}/issue/{issue_key}/transitions"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        payload = {"transition": {"id": transition_id}}
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            resp.raise_for_status()
+            return resp.json()
+
+    async def fetch_issue_comments(self, issue_key: str):
+        url = f"{self.base_url}/issue/{issue_key}/comment"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("comments", [])
+
+    async def add_issue_comment(self, issue_key: str, comment: str):
+        url = f"{self.base_url}/issue/{issue_key}/comment"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        payload = {"body": comment}
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            resp.raise_for_status()
+            return resp.json()
