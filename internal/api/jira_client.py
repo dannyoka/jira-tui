@@ -40,6 +40,7 @@ class JiraClient:
                     "key": issue["key"],
                     "summary": issue["fields"]["summary"],
                     "status": issue["fields"]["statusCategory"]["name"],
+                    "statusId": issue["fields"]["statusCategory"]["id"],
                 }
                 for issue in data["issues"]
             ]

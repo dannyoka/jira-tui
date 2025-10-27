@@ -36,7 +36,7 @@ class TransitionSelector(Widget):
         elif event.key == "k":
             self.selected = max(self.selected - 1, 0)
             self.refresh()
-        elif event.key == "x":
+        elif event.key == "enter":
             transition_id = self.transitions[self.selected]["id"]
             try:
                 await self.jira_client.transition_issue(self.issue_key, transition_id)
