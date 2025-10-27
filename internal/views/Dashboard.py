@@ -32,7 +32,7 @@ class Dashboard(Screen):
         elif event.key == "k":
             self.selected = max(self.selected - 1, 0)
             self.refresh()
-        elif event.key == "space":
+        elif event.key == "enter":
             self.app.push_screen(IssueView(self.issues[self.selected]))
         elif event.key == "q":
             self.app.exit()

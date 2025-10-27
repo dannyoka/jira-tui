@@ -24,7 +24,7 @@ class JiraClient:
         url = f"{self.base_url}/search/jql"
         query = {
             "jql": jql
-            or f"project = QANS AND assignee = currentUser() AND status != Closed AND status != Resolved",
+            or f"assignee = currentUser() AND status != Closed AND status != Resolved",
             "fields": fields or ["summary", "statusCategory"],
         }
         headers = {
@@ -93,6 +93,9 @@ class JiraClient:
             resp = await client.post(url, headers=headers, json=payload)
             resp.raise_for_status()
             if resp.status_code == 204:
+                # clear the cache, because once the issue gets transitioned,
+                # it might have a totally different set of new ones.
+                self._transitions_cache[issue_key] = []
                 return True  # Success, no content
             return resp.json()  # For other status codes with content
 
@@ -131,13 +134,10 @@ class JiraClient:
                 "type": "doc",
                 "version": 1,
             },
-            # "visibility": {
-            #     "identifier": "Administrators",
-            #     "type": "role",
-            #     "value": "Administrators",
-            # },
         }
         async with httpx.AsyncClient() as client:
             resp = await client.post(url, headers=headers, json=payload)
             resp.raise_for_status()
-            return resp.json()
+            new_comment = resp.json()
+            self._comments_cache[issue_key].append(new_comment)
+            return new_comment
