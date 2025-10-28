@@ -1,5 +1,6 @@
 from internal.api.jira_client import JiraClient
 from textual.widget import Widget
+from textual.widgets import Select
 from textual.reactive import reactive
 from textual import events
 

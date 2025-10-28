@@ -80,14 +80,12 @@ class IssueView(Screen):
             except Exception:
                 pass
         if event.key == "j":
-            self.selected = min(self.selected + 1, len(self.issues) - 1)
+            self.selectedComment = min(self.selectedComment + 1, len(self.comments) - 1)
             self.refresh()
         if event.key == "k":
-            self.selected = max(self.selected - 1, 0)
+            self.selectedComment = max(self.selectedComment - 1, 0)
             self.refresh()
 
     async def add_comment_callback(self, new_comment):
         self.comments.append(new_comment)
-        logger.info("adding in a new comment")
-        logger.info(self.comments)
         await self.recompose()

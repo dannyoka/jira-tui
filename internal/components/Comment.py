@@ -11,8 +11,9 @@ class Comment(Widget):
         self.selected = selected
 
     def compose(self):
+        prefix = "->" if self.selected else ""
         yield Vertical(
-            Static(f"[b]{self.author}[/b]", classes="comment-author"),
+            Static(f"{prefix}[b]{self.author}[/b]", classes="comment-author"),
             Static(self.content, classes="comment-content"),
             classes="selected" if self.selected else "",
         )

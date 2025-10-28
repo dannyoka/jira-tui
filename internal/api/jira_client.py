@@ -24,7 +24,7 @@ class JiraClient:
         url = f"{self.base_url}/search/jql"
         query = {
             "jql": jql
-            or f"assignee = currentUser() AND status != Closed AND status != Resolved",
+            or f"assignee = currentUser() AND status != Closed AND status != Resolved AND status != Done",
             "fields": fields or ["summary", "statusCategory"],
         }
         headers = {
