@@ -9,10 +9,9 @@ logger = logging.getLogger(__name__)
 
 class JiraClient:
     def __init__(self, host=None, username=None, api_token=None):
-        self.host = host or os.environ["JIRA_HOST"]
         self.username = username or os.environ["JIRA_USERNAME"]
         self.api_token = api_token or os.environ["JIRA_API_TOKEN"]
-        self.base_url = "https://qlik-dev.atlassian.net/rest/api/3"
+        self.base_url = f"{host or os.environ['JIRA_HOST']}/rest/api/3"
         self._comments_cache = {}
         self._transitions_cache = {}
 
