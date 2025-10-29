@@ -24,8 +24,8 @@ class JiraClient:
         url = f"{self.base_url}/search/jql"
         query = {
             "jql": jql
-            or f"assignee = currentUser() AND status != Closed AND status != Resolved AND status != Done",
-            "fields": fields or ["summary", "statusCategory"],
+            or "assignee = currentUser() AND status != Closed AND status != Resolved AND status != Done",
+            "fields": fields or ["summary", "statusCategory", "description"],
         }
         headers = {
             "Authorization": self.get_auth_header(),
@@ -41,6 +41,7 @@ class JiraClient:
                     "summary": issue["fields"]["summary"],
                     "status": issue["fields"]["statusCategory"]["name"],
                     "statusId": issue["fields"]["statusCategory"]["id"],
+                    "description": issue["fields"]["description"],
                 }
                 for issue in data["issues"]
             ]

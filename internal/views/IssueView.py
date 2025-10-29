@@ -8,7 +8,6 @@ from textual.widgets import Static
 from textual.reactive import reactive
 from textual.containers import VerticalScroll
 import logging
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -54,9 +53,7 @@ class IssueView(Screen):
         if event.key == "t":
             self.app.push_screen(
                 TransitionScreen(
-                    self.transitions,
                     self.issue["key"],
-                    self.app.jira_client,
                 )
             )
         if event.key == "c":

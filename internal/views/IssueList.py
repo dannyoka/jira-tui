@@ -1,35 +1,42 @@
 from textual.reactive import reactive
-from textual.app import ComposeResult
-from textual.widgets import ListView, ListItem, Label
+from textual.widgets import Static
+from textual.widget import Widget
 
 
-class IssueList(ListView):
+class IssueList(Widget):
+    issues_list = reactive([])
     selected = reactive(0)
+    can_focus = True
 
-    def __init__(self, issues, on_selected):
+    def __init__(self, on_select_callback, on_enter_issue):
         super().__init__()
-        self.issues = issues
-        self.on_selected = on_selected
+        self.on_select = on_select_callback
+        self.on_enter_issue = on_enter_issue
 
-    def compose(self) -> ComposeResult:
-        for idx, issue in enumerate(self.issues):
-            prefix = "➤ " if idx == self.selected else "  "
-            yield ListItem(
-                Label(f"{prefix}{issue['key']}: {issue['summary']}", id=f"issue-{idx}")
-            )
+    def on_mount(self):
+        self.focus()
 
-    async def on_list_view_selected(self, event):
-        selected_key = event.item.id
-        selected_issue = next(i for i in self.issues if i["key"] == selected_key)
-        if callable(self.on_select):
-            result = self.on_select(selected_issue)
-            if hasattr(result, "__await__"):
-                await result
-            else:
-                result
+    def compose(self):
+        if not len(self.issues_list):
+            yield Static("No issues yet")
+        for idx, issue in enumerate(self.issues_list):
+            prefix = "->" if idx == self.selected else ""
+            yield Static(f"{prefix}{issue['key']}: {issue['summary']}")
 
-    async def on_key(self, event):
+    def on_key(self, event):
         if event.key == "j":
-            self.action_cursor_down()
-        if event.key == "k":
-            self.action_cursor_up()
+            self.selected = min(self.selected + 1, len(self.issues_list) - 1)
+            self.on_select(self.issues_list[self.selected])
+            self.refresh()
+        elif event.key == "k":
+            self.selected = max(self.selected - 1, 0)
+            self.on_select(self.issues_list[self.selected])
+            self.refresh()
+        elif event.key == "enter":
+            self.on_enter_issue()
+        elif event.key == "q" or event.key == "escape":
+            self.app.exit()
+
+    async def watch_selected(self, old, new):
+        await self.recompose()
+        self.refresh()

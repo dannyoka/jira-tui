@@ -19,10 +19,23 @@ Comment {
    margin-left: 2;
  }
 
- BasicList {
+ Vertical{
+   height: auto;
+ }
+
+ Dashboard {
+   border: solid red;
+ }
+
+ Container {
+   border: solid yellow;
+   width: 100%;
+ }
+
+ .issue-list-container{
    width: 30%;
  }
 
- BasicDetail {
-  width: 70%;
+ .issue-right-container{
+   width: 70%;
  }
