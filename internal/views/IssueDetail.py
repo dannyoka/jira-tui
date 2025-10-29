@@ -2,7 +2,7 @@ from textual.widgets import Static
 from textual.widget import Widget
 from textual.reactive import reactive
 from ..utils.description import extract_description_content
-from textual.containers import Vertical
+from textual.containers import Vertical, VerticalScroll
 from ..components.Comment import Comment
 from ..components.CommentContent import CommentContent
 from ..components.CommentInput import CommentInput
@@ -31,22 +31,36 @@ class IssueDetail(Widget):
 
     def compose(self):
         if not self.issue:
-            yield Static("No issue selected")
+            yield Static("No issue selected", classes="no-issue")
         else:
-            yield Vertical(Static(self.issue["key"]), Static(self.issue["summary"]))
-            lines = extract_description_content(self.issue["description"])
-            yield Static("\n[b]Description[/b]")
-            for line in lines:
-                yield Static(line)
-            if len(self.comments):
-                for idx, comment in enumerate(self.comments):
-                    yield Comment(
-                        author=comment["author"]["displayName"],
-                        content=CommentContent(
-                            comment["body"]["content"][0]["content"]
-                        ).get_content(),
-                        selected=self.selected_comment == idx,
-                    )
+            # Header section
+            yield Vertical(
+                Static(f"[b]{self.issue['key']}[/b]", classes="issue-key"),
+                Static(self.issue["summary"], classes="issue-summary"),
+                Static(f"Assigned to: {self.issue['assignee']}"),
+                Static(f"Reported by: {self.issue['reporter']}"),
+                classes="issue-header",
+            )
+            # Description section
+            yield Static("[b]Description[/b]", classes="section-title")
+            for line in extract_description_content(self.issue["description"]):
+                yield Static(line, classes="issue-description")
+            # Comments section
+            if self.comments:
+                yield Static("[b]Comments[/b]", classes="section-title")
+                yield VerticalScroll(
+                    *[
+                        Comment(
+                            author=comment["author"]["displayName"],
+                            content=CommentContent(
+                                comment["body"]["content"][0]["content"]
+                            ).get_content(),
+                            selected=self.selected_comment == idx,
+                        )
+                        for idx, comment in enumerate(self.comments)
+                    ],
+                    classes="comments-list",
+                )
 
     async def watch_issue(self, old, new):
         if self.issue:

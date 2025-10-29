@@ -1,4 +1,5 @@
 import os
+import json
 import httpx
 import base64
 import logging
@@ -24,8 +25,9 @@ class JiraClient:
         url = f"{self.base_url}/search/jql"
         query = {
             "jql": jql
-            or "assignee = currentUser() AND status != Closed AND status != Resolved AND status != Done",
-            "fields": fields or ["summary", "statusCategory", "description"],
+            or "(assignee = currentUser() OR reporter = currentUser()) AND status != Closed AND status != Resolved AND status != Done",
+            "fields": fields
+            or ["summary", "statusCategory", "description", "assignee", "reporter"],
         }
         headers = {
             "Authorization": self.get_auth_header(),
@@ -42,6 +44,10 @@ class JiraClient:
                     "status": issue["fields"]["statusCategory"]["name"],
                     "statusId": issue["fields"]["statusCategory"]["id"],
                     "description": issue["fields"]["description"],
+                    "assignee": (issue["fields"].get("assignee") or {}).get(
+                        "displayName", "Unassigned"
+                    ),
+                    "reporter": issue["fields"]["reporter"]["displayName"],
                 }
                 for issue in data["issues"]
             ]
@@ -113,6 +119,7 @@ class JiraClient:
             resp = await client.get(url, headers=headers)
             resp.raise_for_status()
             data = resp.json()
+            logger.info(json.dumps(data, indent=4))
             response = data.get("comments", [])
             self._comments_cache[issue_key] = response
             return data.get("comments", [])

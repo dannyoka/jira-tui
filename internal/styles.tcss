@@ -1,41 +1,91 @@
- .comment-author {
-     color: red;
+.comment-author {
+    color: #FFD700;           /* gold */
+    background: #22223B;      /* deep blue */
      margin-bottom: 0;
-     background: green;
+    padding: 0 1;
      width: 50%;
- }
- .comment-content {
-     color: white;
-     margin-bottom: 0;
- }
+    text-style: bold;
+}
+
+.comment-content {
+    color: #F2E9E4;           /* off-white */
+    background: #4A4E69;      /* muted purple */
+    margin-bottom: 1;
+    padding: 0 1;
+}
 
 Comment {
   height: auto;
   width: 33%;
-  margin-bottom: 2;
+    margin-bottom: 1;
+    border-bottom: solid #9A8C98;
 }
 
- .selected {
+.selected {
    margin-left: 2;
- }
+    background: #9A8C98;      /* accent */
+    color: #22223B;
+}
 
- Vertical{
+Vertical {
    height: auto;
- }
+}
 
- Dashboard {
-   border: solid red;
- }
+Dashboard {
+    border: solid #4A4E69;
+    background: #22223B;
+    color: #F2E9E4;
+}
 
- Container {
-   border: solid yellow;
-   width: 100%;
- }
+.issue-list-container {
+    border: solid #9A8C98;
+    width: 30%;
+    background: #232946;
+    color: #F2E9E4;
+    border-right: solid
+}
 
- .issue-list-container{
-   width: 30%;
- }
-
- .issue-right-container{
+.issue-detail-container {
+    border: solid #9A8C98;
    width: 70%;
- }
+    background: #22223B;
+    color: #F2E9E4;
+}
+
+.issue-header {
+    background: #232946;
+    padding: 1 2;
+    margin-bottom: 1;
+    border-bottom: solid #9A8C98;
+}
+
+.issue-key {
+    color: #FFD700;
+}
+
+.issue-summary {
+    color: #F2E9E4;
+    margin-bottom: 1;
+}
+
+.section-title {
+    color: #9A8C98;
+    margin-top: 1;
+    margin-bottom: 1;
+    text-style: bold;
+}
+
+.issue-description {
+    color: #F2E9E4;
+    margin-bottom: 1;
+}
+
+.comments-list {
+    background: #22223B;
+    padding: 1;
+    height: auto; /* or auto, or set max-height */
+}
+
+.focused {
+  border: solid green;
+}

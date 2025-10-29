@@ -2,6 +2,7 @@ from internal.components.Comment import Comment
 from internal.components.CommentContent import CommentContent
 from internal.components.CommentInput import CommentInput
 from internal.views.TransitionScreen import TransitionScreen
+    from internal.utils.comment import extract_comment_content
 from textual.screen import Screen
 from textual.app import ComposeResult
 from textual.widgets import Static
@@ -33,13 +34,13 @@ class IssueView(Screen):
             id="issue-detail",
         )
         for idx, comment in enumerate(self.comments):
+            content_lines = extract_comment_content(comment["body"])
+            content = "\n".join(content_lines)
             yield VerticalScroll(
                 *[
                     Comment(
                         author=comment["author"]["displayName"],
-                        content=CommentContent(
-                            comment["body"]["content"][0]["content"]
-                        ).get_content(),
+                        content=content,
                         selected=self.selectedComment == idx,
                     )
                     for comment in self.comments
