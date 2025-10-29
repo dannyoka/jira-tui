@@ -37,6 +37,7 @@ class IssueDetail(Widget):
             yield Vertical(
                 Static(f"[b]{self.issue['key']}[/b]", classes="issue-key"),
                 Static(self.issue["summary"], classes="issue-summary"),
+                Static(f"Status: {self.issue['status']}"),
                 Static(f"Assigned to: {self.issue['assignee']}"),
                 Static(f"Reported by: {self.issue['reporter']}"),
                 classes="issue-header",
