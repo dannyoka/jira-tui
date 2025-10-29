@@ -9,22 +9,25 @@ A terminal-based Textual UI for browsing, searching, and commenting on Jira issu
 - Add comments to issues
 - Keyboard navigation (vim-like: `j`, `k`, `h`, `l`, etc.)
 
+## Pre-requisites
+
+1. Python 3.11
+2. UV
+
 ## Installation
 
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/yourusername/jira-tui.git
+   git clone https://github.com/dannyoka/jira-tui.git
    cd jira-tui
    ```
 
 2. **Install dependencies:**
 
    ```sh
-   pip install -r requirements.txt
+   uv sync
    ```
-
-   _(Requires Python 3.8+)_
 
 ## JIRA Authentication Setup
 
@@ -48,12 +51,5 @@ source ~/.zshrc
 Run the app from your project directory:
 
 ```sh
-python -m jira_tui
-```
-
-or
-
-```sh
-python jira_tui/main.py
-``
+uv run main.py
 ```
