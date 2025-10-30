@@ -1,5 +1,3 @@
-import json
-from internal.modals.CreateIssueModal import MyModal
 from textual.app import ComposeResult
 from textual.widgets import Footer, Static
 from textual.screen import Screen

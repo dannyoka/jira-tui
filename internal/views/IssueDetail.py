@@ -1,3 +1,4 @@
+from internal.modals.AssignIssueModal import AssignIssueModal
 from textual.widgets import Static
 from textual.widget import Widget
 from textual.reactive import reactive
@@ -120,6 +121,11 @@ class IssueDetail(Widget):
                 input_widget.focus()
             except Exception:
                 pass
+        if event.key == "t":
+            if self.issue:
+                self.app.push_screen(
+                    AssignIssueModal(self.issue["key"], lambda: print("hello world"))
+                )
 
     async def watch_selected_comment(self):
         await self.recompose()
@@ -128,3 +134,6 @@ class IssueDetail(Widget):
     async def add_comment_callback(self, new_comment):
         self.comments.append(new_comment)
         await self.recompose()
+
+    async def assign_issue(self, issue_key, assignee):
+        await self.app.jira_client.assign_issue(issue_key, assignee)
