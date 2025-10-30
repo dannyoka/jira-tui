@@ -89,3 +89,11 @@ Dashboard {
 .focused {
   border: solid green;
 }
+
+MyModal {
+    align: center middle;
+}
+
+QuerySelect {
+  height: auto;
+}
