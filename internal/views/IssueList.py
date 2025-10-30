@@ -23,7 +23,7 @@ class IssueList(Widget):
             prefix = "->" if idx == self.selected else ""
             yield Static(f"{prefix}{issue['key']}: {issue['summary']}")
 
-    def on_key(self, event):
+    async def on_key(self, event):
         if event.key == "j":
             self.selected = min(self.selected + 1, len(self.issues_list) - 1)
             self.on_select(self.issues_list[self.selected])

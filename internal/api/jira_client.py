@@ -14,6 +14,7 @@ class JiraClient:
         self.base_url = f"{host or os.environ['JIRA_HOST']}/rest/api/3"
         self._comments_cache = {}
         self._transitions_cache = {}
+        # self._issues_cache = []
 
     def get_auth_header(self):
         token = f"{self.username}:{self.api_token}"
@@ -21,6 +22,8 @@ class JiraClient:
         return f"Basic {b64_token}"
 
     async def fetch_issues(self, jql=None, fields=None):
+        # if len(self._issues_cache):
+        #     return self._issues_cache
         url = f"{self.base_url}/search/jql"
         query = {
             "jql": jql
@@ -57,15 +60,26 @@ class JiraClient:
             "Authorization": self.get_auth_header(),
             "Accept": "application/json",
         }
-        params = {"fields": ",".join(fields or ["summary", "statusCategory"])}
+        params = {
+            "fields": ",".join(
+                fields
+                or ["summary", "statusCategory", "description", "assignee", "reporter"]
+            )
+        }
         async with httpx.AsyncClient() as client:
             resp = await client.get(url, headers=headers, params=params)
             resp.raise_for_status()
-            data = resp.json()
+            created = resp.json()
             return {
-                "key": data["key"],
-                "summary": data["fields"]["summary"],
-                "status": data["fields"]["statusCategory"]["name"],
+                "key": created["key"],
+                "summary": created["fields"]["summary"],
+                "status": created["fields"]["statusCategory"]["name"],
+                "statusId": created["fields"]["statusCategory"]["id"],
+                "description": created["fields"]["description"],
+                "assignee": (created["fields"].get("assignee") or {}).get(
+                    "displayName", "Unassigned"
+                ),
+                "reporter": created["fields"]["reporter"]["displayName"],
             }
 
     async def fetch_issue_transitions(self, issue_key: str):
@@ -118,7 +132,6 @@ class JiraClient:
             resp = await client.get(url, headers=headers)
             resp.raise_for_status()
             data = resp.json()
-            logger.info(json.dumps(data, indent=4))
             response = data.get("comments", [])
             self._comments_cache[issue_key] = response
             return data.get("comments", [])
@@ -149,3 +162,131 @@ class JiraClient:
             new_comment = resp.json()
             self._comments_cache[issue_key].append(new_comment)
             return new_comment
+
+    async def fetch_projects(self):
+        url = f"{self.base_url}/project"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            return resp.json()
+
+    async def fetch_project_by_key(self, projectKey):
+        url = f"{self.base_url}/project/{projectKey}"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            return resp.json()
+
+    async def fetch_boards(self):
+        url = f"{self.base_url.replace('/rest/api/3', '/rest/agile/1.0')}/board"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+        }
+        params = {"projectKeyOrId": "QANS"}
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers, params=params)
+            resp.raise_for_status()
+            return resp.json()
+
+    async def fetch_sprints(self, board_id):
+        url = f"{self.base_url.replace('/rest/api/3', '/rest/agile/1.0')}/board/{board_id}/sprint"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+        }
+        params = {"state": "active"}
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers, params=params)
+            resp.raise_for_status()
+            return resp.json()
+
+    async def fetch_assignable_users(self, project_key, query):
+        url = f"{self.base_url}/user/assignable/search"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+        }
+        params = {"project": project_key, "maxResults": 100, "query": query}
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers, params=params)
+            logger.info(f"users are: {json.dumps(resp.json())}")
+            resp.raise_for_status()
+            return resp.json()
+
+    async def fetch_issue_createmeta(self, project_key, issuetype_name="Story"):
+        url = f"{self.base_url}/issue/createmeta"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+        }
+        params = {
+            "projectKeys": project_key,
+            "issuetypeNames": issuetype_name,
+            "expand": "projects.issuetypes.fields",
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers, params=params)
+            resp.raise_for_status()
+            return resp.json()
+
+    async def fetch_current_user(self):
+        url = f"{self.base_url}/myself"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            return resp.json()
+
+    async def create_issue(
+        self,
+        summary: str,
+        description: dict,
+        project_id: str = "",
+        assignee_id: str = "",
+        story_points: int = 1,
+        sprint_id: str = "",
+        issuetype: str = "Task",
+        reporter: str = "",
+    ):
+        # my id 61d4db88a54af90069717fa2
+        url = f"{self.base_url}/issue"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        fields = {
+            "project": {"id": project_id},
+            "summary": summary,
+            # "description": description,
+            "issuetype": {"name": issuetype},
+            "reporter": {"id": reporter},
+        }
+        if assignee_id:
+            fields["assignee"] = {"id": assignee_id}
+            # if story_points is not None:
+            fields["customfield_10034"] = (
+                story_points  # Replace with your actual story points field ID
+            )
+        if sprint_id:
+            fields["customfield_10020"] = sprint_id
+        payload = {"fields": fields}
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            logger.info("response is" + json.dumps(resp.json(), indent=4))
+            resp.raise_for_status()
+            new_issue = resp.json()
+            return new_issue
+            # self._issues_cache.append(new_issue)

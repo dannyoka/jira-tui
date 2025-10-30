@@ -1,4 +1,5 @@
 import json
+from internal.modals.CreateIssueModal import MyModal
 from textual.app import ComposeResult
 from textual.widgets import Footer, Static
 from textual.screen import Screen
@@ -27,7 +28,7 @@ class Dashboard(Screen):
         self.issues = await self.app.jira_client.fetch_issues()
         self.issue_list.issues_list = self.issues
         self.issue_list.focus()
-        await self.recompose()
+        await self.issue_list.recompose()
 
     def compose(self) -> ComposeResult:
         issue_list_classes = "issue-list-container"
