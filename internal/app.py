@@ -1,4 +1,3 @@
-import json
 from .config.config import config_data
 from internal.api.jira_client import JiraClient
 from textual.app import App
@@ -26,7 +25,7 @@ class JiraTUI(App):
         self.current_user = await self.jira_client.fetch_current_user()
 
     def on_key(self, event):
-        if event.key == "c":
+        if event.key == "n":
             self.push_screen(
                 MyModal(
                     default_project_id=config_data.get("projectId"),

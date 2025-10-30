@@ -1,8 +1,7 @@
 from internal.components.Comment import Comment
-from internal.components.CommentContent import CommentContent
 from internal.components.CommentInput import CommentInput
 from internal.views.TransitionScreen import TransitionScreen
-    from internal.utils.comment import extract_comment_content
+from internal.utils.comment import extract_comment_content
 from textual.screen import Screen
 from textual.app import ComposeResult
 from textual.widgets import Static
@@ -87,3 +86,6 @@ class IssueView(Screen):
     async def add_comment_callback(self, new_comment):
         self.comments.append(new_comment)
         await self.recompose()
+
+    async def on_assignee_change(self, new_assignee):
+        await self.app.jira_client.assign_issue(self.issue["key"], new_assignee)

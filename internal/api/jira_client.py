@@ -14,7 +14,6 @@ class JiraClient:
         self.base_url = f"{host or os.environ['JIRA_HOST']}/rest/api/3"
         self._comments_cache = {}
         self._transitions_cache = {}
-        # self._issues_cache = []
 
     def get_auth_header(self):
         token = f"{self.username}:{self.api_token}"
@@ -22,8 +21,6 @@ class JiraClient:
         return f"Basic {b64_token}"
 
     async def fetch_issues(self, jql=None, fields=None):
-        # if len(self._issues_cache):
-        #     return self._issues_cache
         url = f"{self.base_url}/search/jql"
         query = {
             "jql": jql
@@ -289,4 +286,16 @@ class JiraClient:
             resp.raise_for_status()
             new_issue = resp.json()
             return new_issue
-            # self._issues_cache.append(new_issue)
+
+    async def assign_issue(self, issue_key: str, account_id: str):
+        url = f"{self.base_url}/issue/{issue_key}/assignee"
+        headers = {
+            "Authorization": self.get_auth_header(),
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        payload = {"accountId": account_id}
+        async with httpx.AsyncClient() as client:
+            resp = await client.put(url, headers=headers, json=payload)
+            resp.raise_for_status()
+            return resp.status_code == 204  # Returns True if assignment was successful
